@@ -1,4 +1,13 @@
-body {
-  margin: 0;
-  font-family: Verdana, sans-serif;
+@import "tailwindcss";
+
+@font-face {
+    font-family: "Pasti";
+    src: url("/fonts/pasti.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@theme {
+  --font-scorekeeper: "Pasti", sans-serif;
 }

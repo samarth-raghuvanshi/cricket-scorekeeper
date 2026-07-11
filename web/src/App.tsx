@@ -1,6 +1,6 @@
 function App() {
   return (
-    <h1> Cricket Scorekeeper  </h1>
+    <h1 className="font-scorekeeper"> Cricket Scorekeeper  </h1>
   );
 }
 
