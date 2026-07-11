@@ -1,7 +1,7 @@
+import Landing from "./pages/landing";
+
 function App() {
-  return (
-    <h1 className="font-scorekeeper"> Cricket Scorekeeper  </h1>
-  );
+  return <Landing />;
 }
 
 export default App;
