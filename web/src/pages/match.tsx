@@ -20,6 +20,26 @@ import {
   type ScoringEvent,
 } from "../lib/scoring";
 
+const recentBallStream = (match: Match) => {
+  const deliveries = match.deliveries.slice(-12);
+  const legalBallsInStream = deliveries.reduce(
+    (count, delivery) => count + (delivery.isLegal ? 1 : 0),
+    0,
+  );
+  let legalBall = match.balls - legalBallsInStream;
+  const stream: string[] = [];
+
+  deliveries.forEach((delivery) => {
+    stream.push(delivery.label);
+    if (delivery.isLegal) {
+      legalBall += 1;
+      if (legalBall % 6 === 0) stream.push("|");
+    }
+  });
+
+  return stream.join(" ").replace(/ \|$/, "");
+};
+
 function MatchPage() {
   const { matchId } = useParams();
   const location = useLocation();
@@ -171,7 +191,8 @@ function MatchPage() {
     }
     const allOut =
       event === "wicket" && nextMatch.batters.every((batter) => batter.isOut);
-    if (allOut) {
+    const oversComplete = nextMatch.balls >= match.overs * 6;
+    if (allOut || oversComplete) {
       const finished = {
         teamName: battingTeam.name,
         battingTeamIndex: match.battingTeamIndex,
@@ -294,12 +315,22 @@ function MatchPage() {
           <ScoreBoard match={match} />
           <button
             onClick={() => setGraphExpanded(true)}
-            className="rounded-2xl border border-white/15 bg-white/[0.04] p-4 text-left transition-colors hover:bg-white/[0.08]"
+            className="rounded-lg border border-white/15 bg-white/[0.04] p-4 text-left transition-colors hover:bg-white/[0.08]"
             aria-label="Expand score progression graph"
           >
             <ScoreProgressChart match={match} />
           </button>
         </div>
+        {match.deliveries.length > 0 && (
+          <div className="mt-3 overflow-hidden rounded-lg border border-white/15 bg-white/[0.04] shadow-2xl">
+            <p
+              className="whitespace-pre text-center font-scorekeeper text-lg tracking-wide text-white/80"
+              aria-label="Last 12 balls"
+            >
+              {recentBallStream(match).split(" ").join("   ")}
+            </p>
+          </div>
+        )}
         <Scorecard
           match={match}
           selectedTeamIndex={scorecardTeamIndex}
@@ -307,8 +338,8 @@ function MatchPage() {
         />
         {mode === "viewer" && match.status === "active" && (
           <div className="mt-7 text-center">
-            <p className="text-white/60">
-              Viewing live score — refreshes automatically.
+            <p className="text-white/60 text-x1">
+              Viewing a live game
             </p>
             <button
               onClick={() => {
@@ -339,7 +370,7 @@ function MatchPage() {
         </button>
         {keyPrompt && (
           <div className="fixed inset-0 z-20 grid place-items-center bg-black/70 p-4">
-            <div className="w-full max-w-sm rounded-2xl border border-white/15 bg-[#2a1b1d] p-6 shadow-2xl">
+            <div className="w-full max-w-sm rounded-lg border border-white/15 bg-[#2a1b1d] p-6 shadow-2xl">
               <h2 className="font-scorekeeper text-3xl">Become scorer</h2>
               <p className="mt-2 text-sm text-white/65">
                 Enter the scorer key given when this match was created.
@@ -384,7 +415,7 @@ function MatchPage() {
         )}
         {noballPrompt && (
           <div className="fixed inset-0 z-20 grid place-items-center bg-black/70 p-4">
-            <div className="w-full max-w-sm rounded-2xl border border-white/15 bg-[#2a1b1d] p-6 shadow-2xl">
+            <div className="w-full max-w-sm rounded-lg border border-white/15 bg-[#2a1b1d] p-6 shadow-2xl">
               <h2 className="font-scorekeeper text-3xl">No-ball runs</h2>
               <p className="mt-2 text-sm text-white/65">
                 Choose the runs scored in addition to the no-ball.
@@ -414,14 +445,14 @@ function MatchPage() {
         )}
         {graphExpanded && (
           <div className="fixed inset-0 z-20 grid place-items-center bg-black/70 p-4">
-            <div className="w-full max-w-3xl rounded-2xl border border-white/15 bg-[#2a1b1d] p-6 shadow-2xl">
+            <div className="w-full max-w-3xl rounded-lg border border-white/15 bg-[#2a1b1d] p-6 shadow-2xl">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="font-scorekeeper text-3xl">Score progression</h2>
                 <button
                   onClick={() => setGraphExpanded(false)}
-                  className="rounded-lg bg-white/10 px-4 py-2 text-sm hover:bg-white/15"
+                  className="rounded-lg px-4 py-2 text-sm hover:bg-white/10"
                 >
-                  Minimise graph
+                  X
                 </button>
               </div>
               <ScoreProgressChart match={match} expanded />

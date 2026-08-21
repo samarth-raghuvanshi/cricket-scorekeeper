@@ -28,12 +28,12 @@ function NavBar() {
       >
         Create
       </Link>
-      <a
-        href="#about"
+      <Link
+        to="/about"
         className="hidden transition-colors duration-200 hover:text-[#D32F2F] sm:inline"
       >
         About
-      </a>
+      </Link>
     </nav>
   );
 }
