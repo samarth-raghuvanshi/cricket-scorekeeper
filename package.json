@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "scripts": {
+    "api": "node server/index.mjs",
+    "dev": "node scripts/dev.mjs",
+    "build": "npm --prefix web run build"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "react-router-dom": "^7.18.1"
+  }
+}
