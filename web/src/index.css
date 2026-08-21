@@ -1,13 +1,23 @@
 @import "tailwindcss";
 
 @font-face {
-    font-family: "Pasti";
-    src: url("/fonts/pasti.otf") format("opentype");
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
+  font-family: "Pasti";
+  src: url("/fonts/pasti.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
 @theme {
   --font-scorekeeper: "Pasti", sans-serif;
+}
+
+button,
+input,
+select {
+  min-height: 44px;
+}
+
+body {
+  overflow-x: hidden;
 }
