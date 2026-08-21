@@ -1,6 +1,9 @@
+import dotenv from "dotenv";
 import { createServer } from "node:http";
 import { createHash, randomInt } from "node:crypto";
 import pg from "pg";
+
+dotenv.config();
 
 const { Pool } = pg;
 
