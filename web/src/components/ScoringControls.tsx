@@ -29,20 +29,22 @@ function ScoringControls({
             {runs}
           </button>
         ))}
-        <button
-          onClick={() => onScore("wide")}
-          disabled={disabled}
-          className="h-12 rounded-full bg-white/10 font-semibold hover:bg-[#c93434] disabled:opacity-35"
-        >
-          Wide
-        </button>
-        <button
-          onClick={() => onScore("noball")}
-          disabled={disabled}
-          className="h-12 rounded-full bg-white/10 font-semibold hover:bg-[#c93434] disabled:opacity-35"
-        >
-          NB
-        </button>
+        <div className="col-span-3 flex justify-center gap-2">
+          <button
+            onClick={() => onScore("wide")}
+            disabled={disabled}
+            className="h-12 w-full max-w-[calc((100%-0.5rem)/3)] rounded-full bg-white/10 font-semibold hover:bg-[#c93434] disabled:opacity-35"
+          >
+            Wide
+          </button>
+          <button
+            onClick={() => onScore("noball")}
+            disabled={disabled}
+            className="h-12 w-full max-w-[calc((100%-0.5rem)/3)] rounded-full bg-white/10 font-semibold hover:bg-[#c93434] disabled:opacity-35"
+          >
+            NB
+          </button>
+        </div>
         <button
           onClick={() => onScore("wicket")}
           disabled={disabled}

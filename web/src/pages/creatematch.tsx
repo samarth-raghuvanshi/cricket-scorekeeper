@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import NavBar from "../components/navbar";
 import { createMatch, type Team } from "../lib/match";
 
-type Step = "names" | "players" | "review";
+type Step = "names" | "toss" | "players" | "review";
+type TossDecision = "bat" | "bowl";
 
 const formatPlayerName = (value: string) =>
   value
@@ -19,16 +20,30 @@ function CreateMatch() {
     { name: "", players: [] },
     { name: "", players: [] },
   ]);
+  const [overs, setOvers] = useState("20");
   const [step, setStep] = useState<Step>("names");
+  const [tossWinner, setTossWinner] = useState<number | null>(null);
+  const [tossDecision, setTossDecision] = useState<TossDecision | null>(null);
   const [currentTeamIndex, setCurrentTeamIndex] = useState(0);
   const [playerInput, setPlayerInput] = useState("");
 
-  const canProceedToPlayers = teams[0].name.trim() && teams[1].name.trim();
+  const oversValue = Number(overs);
+  const canProceedToPlayers =
+    teams[0].name.trim() &&
+    teams[1].name.trim() &&
+    Number.isInteger(oversValue) &&
+    oversValue > 0 &&
+    oversValue <= 50;
 
   const startPlayerEntry = () => {
     if (!canProceedToPlayers) return;
     setStep("players");
     setCurrentTeamIndex(0);
+  };
+
+  const simulateToss = () => {
+    setTossWinner(Math.random() < 0.5 ? 0 : 1);
+    setTossDecision(null);
   };
 
   const addPlayer = () => {
@@ -64,16 +79,21 @@ function CreateMatch() {
       setCurrentTeamIndex(1);
       setPlayerInput("");
     } else {
-      setStep("review");
+      setStep("toss");
     }
   };
 
   const startMatch = async () => {
+    if (tossWinner === null || tossDecision === null) return;
+    const battingTeamIndex =
+      tossDecision === "bat" ? tossWinner : 1 - tossWinner;
+    const bowlingTeamIndex = 1 - battingTeamIndex;
     const match = await createMatch({
       teams,
-      battingTeamIndex: 0,
+      overs: oversValue,
+      battingTeamIndex,
       activeBatterIndex: 0,
-      batters: teams[0].players.map((name) => ({
+      batters: teams[battingTeamIndex].players.map((name) => ({
         name,
         runs: 0,
         balls: 0,
@@ -87,7 +107,7 @@ function CreateMatch() {
       deliveries: [],
       completedInnings: [],
       currentOverBowler: null,
-      bowlers: teams[1].players.map((name) => ({
+      bowlers: teams[bowlingTeamIndex].players.map((name) => ({
         name,
         balls: 0,
         runs: 0,
@@ -140,6 +160,23 @@ function CreateMatch() {
                 placeholder="Team 2 name"
                 className="w-full rounded-md border-2 border-white bg-transparent px-4 py-3 text-center text-xl text-white placeholder-white/60 focus:border-[#D32F2F] focus:outline-none"
               />
+              <label className="block text-left text-sm text-white/70" htmlFor="overs">
+                Match length
+              </label>
+              <div className="flex items-center rounded-md border-2 border-white px-4 focus-within:border-[#D32F2F]">
+                <input
+                  id="overs"
+                  type="number"
+                  min="1"
+                  max="50"
+                  step="1"
+                  value={overs}
+                  onChange={(event) => setOvers(event.target.value)}
+                  aria-label="Number of overs"
+                  className="w-full bg-transparent py-3 text-center text-xl text-white outline-none"
+                />
+                <span className="text-xl text-white/75">overs</span>
+              </div>
             </div>
             <button
               type="button"
@@ -149,6 +186,68 @@ function CreateMatch() {
             >
               Next: Add Players
             </button>
+          </div>
+        )}
+
+        {step === "toss" && (
+          <div className="rounded-2xl border border-white/15 bg-white/[0.04] p-6 text-center shadow-xl sm:p-8">
+            <h2 className="mb-2 font-scorekeeper text-3xl text-white">
+              Toss
+            </h2>
+            <p className="mb-6 text-white/70">
+              Select the toss winner, or simulate a coin toss.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {teams.map((team, index) => (
+                <button
+                  key={team.name}
+                  type="button"
+                  onClick={() => {
+                    setTossWinner(index);
+                    setTossDecision(null);
+                  }}
+                  className={`rounded-md border-2 px-4 py-3 text-lg font-semibold ${tossWinner === index ? "border-[#D32F2F] bg-[#D32F2F]" : "border-white/30 bg-white/[0.04] hover:border-white"}`}
+                >
+                  {team.name} won the toss
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={simulateToss}
+              className="mt-4 rounded-md border border-[#ef9a9a] px-5 py-3 font-semibold text-[#ffb4b4] hover:bg-[#7d2424]/40"
+            >
+              Simulate coin toss
+            </button>
+            {tossWinner !== null && (
+              <div className="mt-7 border-t border-white/10 pt-6">
+                <p className="mb-3 text-white/70">
+                  {teams[tossWinner].name} chooses to:
+                </p>
+                <div className="flex justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTossDecision("bat");
+                      setStep("review");
+                    }}
+                    className="rounded-md bg-[#D32F2F] px-6 py-3 font-semibold"
+                  >
+                    Bat first
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTossDecision("bowl");
+                      setStep("review");
+                    }}
+                    className="rounded-md bg-[#D32F2F] px-6 py-3 font-semibold"
+                  >
+                    Bowl first
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

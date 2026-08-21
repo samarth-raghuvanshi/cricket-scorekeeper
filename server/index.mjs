@@ -32,6 +32,15 @@ const hashScorerKey = (key) =>
 const matchesScorerKey = (input, stored) =>
   /^[A-Z0-9]{4}$/i.test(input) &&
   (hashScorerKey(input.toUpperCase()) === stored || input.toUpperCase() === stored);
+const matchSubscribers = new Map();
+const writeMatchEvent = (response, match) => {
+  response.write(`data: ${JSON.stringify(match)}\n\n`);
+};
+const notifyMatchSubscribers = (matchId, match) => {
+  for (const response of matchSubscribers.get(matchId) ?? []) {
+    writeMatchEvent(response, match);
+  }
+};
 
 const send = (response, status, body) =>
   response
@@ -66,7 +75,7 @@ createServer(async (request, response) => {
   if (request.method === "OPTIONS") return send(response, 204, {});
   const path = new URL(request.url, `http://${request.headers.host}`).pathname;
   const matchId = path.match(
-    /^\/api\/matches\/([\w-]+)(?:\/scorer-session)?$/,
+    /^\/api\/matches\/([\w-]+)(?:\/(?:scorer-session|events))?$/,
   )?.[1];
   try {
     if (request.method === "GET" && path === "/api/matches") {
@@ -74,6 +83,30 @@ createServer(async (request, response) => {
         .prepare("SELECT * FROM matches ORDER BY updated_at DESC")
         .all();
       return send(response, 200, rows.map(matchResponse));
+    }
+    if (request.method === "GET" && matchId && path.endsWith("/events")) {
+      const row = db.prepare("SELECT * FROM matches WHERE id = ?").get(matchId);
+      if (!row) return send(response, 404, { error: "Match not found" });
+      response.writeHead(200, {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+      });
+      response.write(": connected\n\n");
+      writeMatchEvent(response, matchResponse(row));
+      const subscribers = matchSubscribers.get(matchId) ?? new Set();
+      subscribers.add(response);
+      matchSubscribers.set(matchId, subscribers);
+      const keepAlive = setInterval(() => response.write(": keep-alive\n\n"), 30000);
+      const cleanup = () => {
+        clearInterval(keepAlive);
+        subscribers.delete(response);
+        if (!subscribers.size) matchSubscribers.delete(matchId);
+      };
+      request.on("close", cleanup);
+      response.on("close", cleanup);
+      return;
     }
     if (request.method === "POST" && path === "/api/matches") {
       const state = await readBody(request);
@@ -129,14 +162,15 @@ createServer(async (request, response) => {
       const result = db
         .prepare("UPDATE matches SET state = ?, updated_at = ? WHERE id = ?")
         .run(JSON.stringify(state), now, matchId);
-      return result.changes
-        ? send(response, 200, {
+      if (!result.changes) return send(response, 404, { error: "Match not found" });
+      const updatedMatch = {
             id: matchId,
             ...state,
             createdAt: row.created_at,
             updatedAt: now,
-          })
-        : send(response, 404, { error: "Match not found" });
+          };
+      notifyMatchSubscribers(matchId, updatedMatch);
+      return send(response, 200, updatedMatch);
     }
     if (request.method === "DELETE" && matchId) {
       if (request.headers["x-admin-key"] !== adminKey)

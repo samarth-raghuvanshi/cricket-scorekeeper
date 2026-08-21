@@ -58,11 +58,11 @@ function Scorecard({
           <div className="min-w-[470px]">
             <div className="mb-2 grid grid-cols-[minmax(150px,1fr)_48px_48px_52px_40px_40px] gap-2 border-b border-white/15 pb-2 text-xs uppercase text-white/45">
               <span>Batting</span>
-              <span>R</span>
-              <span>B</span>
-              <span>SR</span>
-              <span>4s</span>
-              <span>6s</span>
+              <span className="text-center">R</span>
+              <span className="text-center">B</span>
+              <span className="text-center">SR</span>
+              <span className="text-center">4s</span>
+              <span className="text-center">6s</span>
             </div>
             {selected.batters.map((batter, index) => (
               <div
@@ -70,21 +70,21 @@ function Scorecard({
                 className="grid grid-cols-[minmax(150px,1fr)_48px_48px_52px_40px_40px] gap-2 py-1.5"
               >
                 <span>{batter.name}</span>
-                <span>{batter.runs}</span>
-                <span>{batter.balls}</span>
-                <span>
+                <span className="text-center">{batter.runs}</span>
+                <span className="text-center">{batter.balls}</span>
+                <span className="text-center">
                   {batter.balls ? ((batter.runs / batter.balls) * 100).toFixed(2) : "-"}
                 </span>
-                <span>{batter.fours}</span>
-                <span>{batter.sixes}</span>
+                <span className="text-center">{batter.fours}</span>
+                <span className="text-center">{batter.sixes}</span>
               </div>
             ))}
             <div className="mt-5 mb-2 grid grid-cols-[minmax(150px,1fr)_64px_64px_64px_64px] gap-2 border-b border-white/15 pb-2 text-xs uppercase text-white/45">
               <span>Bowling</span>
-              <span>O</span>
-              <span>R</span>
-              <span>W</span>
-              <span>Econ</span>
+              <span className="text-center">O</span>
+              <span className="text-center">R</span>
+              <span className="text-center">W</span>
+              <span className="text-center">Econ</span>
             </div>
             {selected.bowlers.map((bowler, index) => (
               <div
@@ -92,12 +92,12 @@ function Scorecard({
                 className="grid grid-cols-[minmax(150px,1fr)_64px_64px_64px_64px] gap-2 py-1.5"
               >
                 <span>{bowler.name}</span>
-                <span>
+                <span className="text-center">
                   {Math.floor(bowler.balls / 6)}.{bowler.balls % 6}
                 </span>
-                <span>{bowler.runs}</span>
-                <span>{bowler.wickets}</span>
-                <span>
+                <span className="text-center">{bowler.runs}</span>
+                <span className="text-center">{bowler.wickets}</span>
+                <span className="text-center">
                   {bowler.balls ? ((bowler.runs * 6) / bowler.balls).toFixed(2) : "-"}
                 </span>
               </div>

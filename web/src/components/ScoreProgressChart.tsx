@@ -9,33 +9,44 @@ function ScoreProgressChart({
 }) {
   const innings = match.teams.map((team, index) => {
     const completed = match.completedInnings.find(
-      (item) => item.teamName === team.name,
+      (item) => item.battingTeamIndex === index,
     );
     const deliveries =
       completed?.deliveries ??
       (match.battingTeamIndex === index ? match.deliveries : []);
     let score = 0;
     let legalBalls = 0;
-    const scores = [0];
+    const scores = [{ score: 0, over: 0 }];
     deliveries.forEach((delivery) => {
       score += delivery.runs;
+      const wicketPoint = delivery.isWicket;
       if (delivery.isLegal !== false) {
         legalBalls += 1;
-        if (legalBalls % 6 === 0) scores.push(score);
+        if (legalBalls % 6 === 0 || wicketPoint) {
+          scores.push({ score, over: legalBalls / 6 });
+        }
+      } else if (wicketPoint) {
+        scores.push({ score, over: legalBalls / 6 });
       }
     });
+    if (match.status === "completed" && scores.at(-1)?.score !== score) {
+      scores.push({ score, over: legalBalls / 6 });
+    }
     return { name: team.name, scores };
   });
-  const maxBalls = Math.max(
+  const maxOvers = Math.max(
     1,
-    ...innings.map((item) => item.scores.length - 1),
+    match.overs ?? 0,
+    ...innings.flatMap((item) => item.scores.map((point) => point.over)),
   );
-  const maxScore = Math.max(1, ...innings.flatMap((item) => item.scores));
-  const pointString = (scores: number[]) =>
+  const maxScore = Math.max(
+    1,
+    ...innings.flatMap((item) => item.scores.map((point) => point.score)),
+  );
+  const pointString = (scores: { score: number; over: number }[]) =>
     scores
-      .map(
-        (score, ball) =>
-          `${14 + (ball / maxBalls) * 172},${72 - (score / maxScore) * 56}`,
+      .map((point) =>
+        `${14 + (point.over / maxOvers) * 172},${72 - (point.score / maxScore) * 56}`,
       )
       .join(" ");
 
@@ -59,6 +70,18 @@ function ScoreProgressChart({
         className={expanded ? "h-64 w-full" : "h-24 w-full"}
       >
         <path d="M14 16V72H186" stroke="rgba(255,255,255,.35)" fill="none" />
+        <text x="14" y="82" fill="rgba(255,255,255,.55)" fontSize="6">
+          0 ov
+        </text>
+        <text
+          x="186"
+          y="82"
+          textAnchor="end"
+          fill="rgba(255,255,255,.55)"
+          fontSize="6"
+        >
+          {maxOvers} ov
+        </text>
         <polyline
           points={pointString(innings[0].scores)}
           fill="none"

@@ -1,5 +1,7 @@
 import { request } from "./api";
 
+const apiBase = import.meta.env.VITE_API_URL ?? "/api";
+
 export interface Team {
   name: string;
   players: string[];
@@ -10,6 +12,7 @@ export interface Match {
   createdAt?: string;
   updatedAt?: string;
   teams: Team[];
+  overs: number;
   battingTeamIndex: number;
   activeBatterIndex: number;
   batters: Batter[];
@@ -47,6 +50,7 @@ export interface Delivery {
 
 export interface Innings {
   teamName: string;
+  battingTeamIndex: number;
   score: number;
   wickets: number;
   balls: number;
@@ -68,6 +72,7 @@ export const createMatch = (match: Match) =>
     body: JSON.stringify(match),
   });
 export const getMatch = (id: string) => request<Match>(`/matches/${id}`);
+export const matchEventsUrl = (id: string) => `${apiBase}/matches/${id}/events`;
 export const updateMatch = (match: Match, scorerKey: string) =>
   request<Match>(`/matches/${match.id}`, {
     method: "PUT",

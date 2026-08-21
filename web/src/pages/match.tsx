@@ -8,6 +8,7 @@ import Scorecard from "../components/Scorecard";
 import ScoringControls from "../components/ScoringControls";
 import {
   getMatch,
+  matchEventsUrl,
   updateMatch,
   verifyScorerKey,
   type Match,
@@ -63,12 +64,31 @@ function MatchPage() {
 
   useEffect(() => {
     const startup = window.setTimeout(() => void load(), 0);
-    const timer = window.setInterval(() => void load(), 2000);
+    if (mode !== "viewer" || !matchId) {
+      return () => window.clearTimeout(startup);
+    }
+    const events = new EventSource(matchEventsUrl(matchId));
+    events.onmessage = (event) => {
+      try {
+        const latest = JSON.parse(event.data) as Match;
+        if (
+          battingTeamIndexRef.current === null ||
+          battingTeamIndexRef.current !== latest.battingTeamIndex
+        ) {
+          setScorecardTeamIndex(latest.battingTeamIndex);
+        }
+        battingTeamIndexRef.current = latest.battingTeamIndex;
+        setMatch(latest);
+        setError("");
+      } catch {
+        setError("Could not read live score update");
+      }
+    };
     return () => {
       window.clearTimeout(startup);
-      window.clearInterval(timer);
+      events.close();
     };
-  }, [load]);
+  }, [load, matchId, mode]);
 
   const save = async (next: Match) => {
     try {
@@ -154,6 +174,7 @@ function MatchPage() {
     if (allOut) {
       const finished = {
         teamName: battingTeam.name,
+        battingTeamIndex: match.battingTeamIndex,
         score: nextMatch.score,
         wickets: nextMatch.wickets,
         balls: nextMatch.balls,
