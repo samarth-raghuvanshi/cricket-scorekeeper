@@ -17,7 +17,7 @@ function PlayerSelector({
 
   return (
     <div className="fixed inset-0 z-20 grid place-items-center bg-black/70 p-4">
-      <div className="w-full max-w-sm rounded-2xl border border-[#ed7777]/40 bg-[#2a1b1d] p-6 shadow-2xl">
+      <div className="w-full max-w-sm rounded-lg border border-[#ed7777]/40 bg-[#2a1b1d] p-6 shadow-2xl">
         <p className="text-sm uppercase tracking-widest text-[#ff9b9b]">
           {selection === "bowler" ? "New over" : "Wicket fallen"}
         </p>

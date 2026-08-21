@@ -33,6 +33,7 @@ const matchesScorerKey = (input, stored) =>
   /^[A-Z0-9]{4}$/i.test(input) &&
   (hashScorerKey(input.toUpperCase()) === stored || input.toUpperCase() === stored);
 const matchSubscribers = new Map();
+const historySubscribers = new Set();
 const writeMatchEvent = (response, match) => {
   response.write(`data: ${JSON.stringify(match)}\n\n`);
 };
@@ -40,6 +41,9 @@ const notifyMatchSubscribers = (matchId, match) => {
   for (const response of matchSubscribers.get(matchId) ?? []) {
     writeMatchEvent(response, match);
   }
+};
+const notifyHistorySubscribers = (match) => {
+  for (const response of historySubscribers) writeMatchEvent(response, match);
 };
 
 const send = (response, status, body) =>
@@ -84,6 +88,24 @@ createServer(async (request, response) => {
         .all();
       return send(response, 200, rows.map(matchResponse));
     }
+    if (request.method === "GET" && path === "/api/matches/events") {
+      response.writeHead(200, {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+      });
+      response.write(": connected\n\n");
+      historySubscribers.add(response);
+      const keepAlive = setInterval(() => response.write(": keep-alive\n\n"), 30000);
+      const cleanup = () => {
+        clearInterval(keepAlive);
+        historySubscribers.delete(response);
+      };
+      request.on("close", cleanup);
+      response.on("close", cleanup);
+      return;
+    }
     if (request.method === "GET" && matchId && path.endsWith("/events")) {
       const row = db.prepare("SELECT * FROM matches WHERE id = ?").get(matchId);
       if (!row) return send(response, 404, { error: "Match not found" });
@@ -116,13 +138,15 @@ createServer(async (request, response) => {
       db.prepare(
         "INSERT INTO matches (id, state, scorer_key, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
       ).run(id, JSON.stringify(state), hashScorerKey(scorerKey), now, now);
-      return send(response, 201, {
+      const createdMatch = {
         id,
         ...state,
         scorerKey,
         createdAt: now,
         updatedAt: now,
-      });
+      };
+      notifyHistorySubscribers(createdMatch);
+      return send(response, 201, createdMatch);
     }
     if (
       request.method === "POST" &&
@@ -170,6 +194,7 @@ createServer(async (request, response) => {
             updatedAt: now,
           };
       notifyMatchSubscribers(matchId, updatedMatch);
+      notifyHistorySubscribers(updatedMatch);
       return send(response, 200, updatedMatch);
     }
     if (request.method === "DELETE" && matchId) {

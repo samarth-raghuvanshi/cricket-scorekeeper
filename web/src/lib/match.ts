@@ -80,6 +80,7 @@ export const updateMatch = (match: Match, scorerKey: string) =>
     body: JSON.stringify(match),
   });
 export const getMatchHistory = () => request<Match[]>("/matches");
+export const matchHistoryEventsUrl = () => `${apiBase}/matches/events`;
 export const deleteMatch = (id: string, adminKey: string) =>
   request<void>(`/matches/${id}`, {
     method: "DELETE",

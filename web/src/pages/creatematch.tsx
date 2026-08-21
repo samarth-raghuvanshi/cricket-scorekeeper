@@ -125,15 +125,15 @@ function CreateMatch() {
     <div className="min-h-screen bg-[#1e1b1c]">
       <NavBar />
       <main className="mx-auto max-w-2xl px-4 py-12">
-        <p className="text-center font-scorekeeper text-lg text-[#ef9a9a]">
-          Set up a casual game
+        <p className="text-center font-scorekeeper py-3 text-lg text-[#ef9a9a]">
+          Set up a game
         </p>
         <h1 className="mb-8 text-center text-4xl font-scorekeeper text-white">
           Create Match
         </h1>
 
         {step === "names" && (
-          <div className="rounded-2xl border border-white/15 bg-white/[0.04] p-6 font-scorekeeper text-center shadow-xl sm:p-8">
+          <div className="rounded-lg border border-white/15 bg-white/[0.04] p-6 font-scorekeeper text-center shadow-xl sm:p-8">
             <h2 className="mb-6 text-3xl text-white">Enter Team Names</h2>
             <div className="space-y-4">
               <input
@@ -160,10 +160,10 @@ function CreateMatch() {
                 placeholder="Team 2 name"
                 className="w-full rounded-md border-2 border-white bg-transparent px-4 py-3 text-center text-xl text-white placeholder-white/60 focus:border-[#D32F2F] focus:outline-none"
               />
-              <label className="block text-left text-sm text-white/70" htmlFor="overs">
+              <label className="block text-center text-sm text-white/70" htmlFor="overs">
                 Match length
               </label>
-              <div className="flex items-center rounded-md border-2 border-white px-4 focus-within:border-[#D32F2F]">
+              <div className="flex items-center mx-auto rounded-md border-2 w-5/12 border-white px-4 focus-within:border-[#D32F2F]">
                 <input
                   id="overs"
                   type="number"
@@ -184,13 +184,13 @@ function CreateMatch() {
               disabled={!canProceedToPlayers}
               className="mt-8 rounded-md bg-[#D32F2F] px-8 py-3 text-xl font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-white/20"
             >
-              Next: Add Players
+              Add Players
             </button>
           </div>
         )}
 
         {step === "toss" && (
-          <div className="rounded-2xl border border-white/15 bg-white/[0.04] p-6 text-center shadow-xl sm:p-8">
+          <div className="rounded-lg border border-white/15 bg-white/[0.04] p-6 text-center shadow-xl sm:p-8">
             <h2 className="mb-2 font-scorekeeper text-3xl text-white">
               Toss
             </h2>
@@ -206,7 +206,7 @@ function CreateMatch() {
                     setTossWinner(index);
                     setTossDecision(null);
                   }}
-                  className={`rounded-md border-2 px-4 py-3 text-lg font-semibold ${tossWinner === index ? "border-[#D32F2F] bg-[#D32F2F]" : "border-white/30 bg-white/[0.04] hover:border-white"}`}
+                  className={`rounded-md border-2 px-4 py-3 text-white text-lg font-semibold ${tossWinner === index ? "border-[#D32F2F] bg-[#D32F2F]" : "border-white/30 bg-white/[0.04] hover:border-white"}`}
                 >
                   {team.name} won the toss
                 </button>
@@ -215,7 +215,7 @@ function CreateMatch() {
             <button
               type="button"
               onClick={simulateToss}
-              className="mt-4 rounded-md border border-[#ef9a9a] px-5 py-3 font-semibold text-[#ffb4b4] hover:bg-[#7d2424]/40"
+              className="mt-4 rounded-md border border-[#ef9a9a] px-5 py-3 font-semibold text-white hover:bg-[#7d2424]/40"
             >
               Simulate coin toss
             </button>
@@ -231,7 +231,7 @@ function CreateMatch() {
                       setTossDecision("bat");
                       setStep("review");
                     }}
-                    className="rounded-md bg-[#D32F2F] px-6 py-3 font-semibold"
+                    className="rounded-md text-white bg-[#D32F2F] px-6 py-3 font-semibold"
                   >
                     Bat first
                   </button>
@@ -241,7 +241,7 @@ function CreateMatch() {
                       setTossDecision("bowl");
                       setStep("review");
                     }}
-                    className="rounded-md bg-[#D32F2F] px-6 py-3 font-semibold"
+                    className="rounded-md text-white bg-[#D32F2F] px-6 py-3 font-semibold"
                   >
                     Bowl first
                   </button>
@@ -252,7 +252,7 @@ function CreateMatch() {
         )}
 
         {step === "players" && (
-          <div className="rounded-2xl border border-white/15 bg-white/[0.04] p-6 font-scorekeeper text-center shadow-xl sm:p-8">
+          <div className="rounded-lg border border-white/15 bg-white/[0.04] p-6 font-scorekeeper text-center shadow-xl sm:p-8">
             <h2 className="mb-2 text-3xl text-white">
               {teams[currentTeamIndex].name}
             </h2>
@@ -315,13 +315,13 @@ function CreateMatch() {
             >
               {currentTeamIndex === 0
                 ? `Next: ${teams[1].name || "Team 2"}`
-                : "Review Teams"}
+                : "Proceed to Toss"}
             </button>
           </div>
         )}
 
         {step === "review" && (
-          <div className="rounded-2xl border border-white/15 bg-white/[0.04] p-6 font-scorekeeper text-center shadow-xl sm:p-8">
+          <div className="rounded-lg border border-white/15 bg-white/[0.04] p-6 font-scorekeeper text-center shadow-xl sm:p-8">
             <h2 className="mb-6 text-3xl text-white">Review Teams</h2>
             <div className="grid gap-6 md:grid-cols-2">
               {teams.map((team, index) => (

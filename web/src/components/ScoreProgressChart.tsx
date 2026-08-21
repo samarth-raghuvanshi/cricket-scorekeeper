@@ -53,7 +53,7 @@ function ScoreProgressChart({
   return (
     <div className={expanded ? "w-full" : "min-w-0 w-52"}>
       <div className="mb-1 flex flex-wrap gap-x-3 text-[10px] text-white/70">
-        <span>Score progression · per over</span>
+        <span>Per over</span>
         <span>
           <i className="mr-1 inline-block h-2 w-2 rounded-full bg-[#ffb0b0]" />
           {innings[0].name}
@@ -86,7 +86,7 @@ function ScoreProgressChart({
           points={pointString(innings[0].scores)}
           fill="none"
           stroke="#ffb0b0"
-          strokeWidth="3"
+          strokeWidth="1"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -94,7 +94,7 @@ function ScoreProgressChart({
           points={pointString(innings[1].scores)}
           fill="none"
           stroke="#9cc8ff"
-          strokeWidth="3"
+          strokeWidth="1"
           strokeLinecap="round"
           strokeLinejoin="round"
         />

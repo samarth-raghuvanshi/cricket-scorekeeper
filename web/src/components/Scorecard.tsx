@@ -34,13 +34,13 @@ function Scorecard({
         );
 
   return (
-    <section className="mt-5 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.04]">
+    <section className="mt-5 overflow-hidden rounded-lg border border-white/15 bg-white/[0.04]">
       <div className="flex gap-2 border-b border-white/10 p-3">
         {match.teams.map((team, index) => (
           <button
             key={team.name}
             onClick={() => onSelectTeam(index)}
-            className={`rounded-full px-4 py-2 text-sm font-semibold ${selectedTeamIndex === index ? "bg-[#c93434] shadow-md" : "bg-white/10 text-white/70 hover:bg-white/15"}`}
+            className={`rounded-lg px-4 py-2 text-sm font-semibold ${selectedTeamIndex === index ? "bg-[#c93434] shadow-md" : "bg-white/10 text-white/70 hover:bg-white/15"}`}
           >
             {team.name}
           </button>
@@ -79,17 +79,17 @@ function Scorecard({
                 <span className="text-center">{batter.sixes}</span>
               </div>
             ))}
-            <div className="mt-5 mb-2 grid grid-cols-[minmax(150px,1fr)_64px_64px_64px_64px] gap-2 border-b border-white/15 pb-2 text-xs uppercase text-white/45">
+            <div className="mt-5 mb-2 grid grid-cols-[minmax(150px,1fr)_60px_60px_60px_60px] gap-2 border-b border-white/15 pb-2 text-xs uppercase text-white/45">
               <span>Bowling</span>
               <span className="text-center">O</span>
               <span className="text-center">R</span>
               <span className="text-center">W</span>
-              <span className="text-center">Econ</span>
+              <span className="text-center">Eco</span>
             </div>
             {selected.bowlers.map((bowler, index) => (
               <div
                 key={`${bowler.name}-${index}`}
-                className="grid grid-cols-[minmax(150px,1fr)_64px_64px_64px_64px] gap-2 py-1.5"
+                className="grid grid-cols-[minmax(150px,1fr)_60px_60px_60px_60px] gap-2 py-1.5"
               >
                 <span>{bowler.name}</span>
                 <span className="text-center">
